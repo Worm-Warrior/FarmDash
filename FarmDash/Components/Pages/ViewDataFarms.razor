@@ -1,0 +1,395 @@
+﻿@page "/ViewDataFarms"
+@using FarmDash.Controllers
+@using FarmDash.Models
+@using FarmDash.Services
+@inject FarmServices FarmServices
+@rendermode InteractiveServer
+
+
+<PageTitle>Data View</PageTitle>
+
+<h1>Data View</h1>
+
+<p>The current farms in the database.</p>
+
+@if (farms == null)
+{
+    <p>
+        <em>Loading...</em>
+    </p>
+}
+else
+{
+    <div class="ms-sm-auto mb-3">
+        <p>Search database</p>
+        <input class="form-control-sm" @bind="searchBox"/>
+        <button style="" class="btn btn-primary btn-success ms-2" @onclick="()=>search(searchBox)">Search</button>
+        @if (!exact) 
+        {
+        <button class="btn btn-primary btn-success btn-outline-dark ms-2" @onclick="()=>ToggleExact()">General Search</button>
+        }
+        else
+        {
+            <button class="btn btn-primary btn-success btn-outline-dark ms-2" @onclick="()=>ToggleExact()">Exact Search</button>
+        }
+    </div>
+    
+    <table class="table ms-sm-auto">
+        <thead>
+        <tr>
+            <th class="sortable-header"  style="cursor: pointer; padding: 0.5rem; user-select: none;" 
+                @onclick="() => SortBy(FarmID)">FarmID @(curSortCol == "FarmID" ? (sortAscend ? "▲" : "▼") : "")</th>
+            <th class="sortable-header"  style="cursor: pointer; padding: 0.5rem; user-select: none;" 
+                @onclick="() => SortBy(name)">Name @(curSortCol == "Name" ? (sortAscend ? "▲" : "▼") : "")</th>
+            <th class="sortable-header"  style="cursor: pointer; padding: 0.5rem; user-select: none;" 
+                @onclick="() => SortBy(Location)">Location @(curSortCol == "Location" ? (sortAscend ? "▲" : "▼") : "")</th>
+            <th class="sortable-header"  style="cursor: pointer; padding: 0.5rem; user-select: none;" 
+                @onclick="() => SortBy(Description)">Description @(curSortCol == "Description" ? (sortAscend ? "▲" : "▼") : "")</th>
+            <th class="sortable-header"  style="cursor: pointer; padding: 0.5rem; user-select: none;" 
+                @onclick="() => SortBy(Animal)">Animal @(curSortCol == "Animal" ? (sortAscend ? "▲" : "▼") : "")</th>
+            <th class="sortable-header"  style="cursor: pointer; padding: 0.5rem; user-select: none;" 
+                @onclick="() => SortBy(DeathRate)">Death Rate (per 1k) @(curSortCol == "DeathRate" ? (sortAscend ? "▲" : "▼") : "")</th>
+            <th class="sortable-header"  style="cursor: pointer; padding: 0.5rem; user-select: none;" 
+                @onclick="() => SortBy(SickRate)">Sick Rate (per 1k) @(curSortCol == "SickRate" ? (sortAscend ? "▲" : "▼") : "")</th>
+            <th class="sortable-header"  style="cursor: pointer; padding: 0.5rem; user-select: none;" 
+                @onclick="() => SortBy(State)">State @(curSortCol == "State" ? (sortAscend ? "▲" : "▼") : "")</th>
+            <th class="sortable-header"  style="cursor: pointer; padding: 0.5rem; user-select: none;" 
+                @onclick="() => SortBy(Created)">Created @(curSortCol == "Created" ? (sortAscend ? "▲" : "▼") : "")</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        
+        @foreach (var farm in farms)
+        {
+            if (editingFarm?.Id == farm.Id)
+            {
+                <tr>
+                    <td><input @bind="editingFarm.FarmID" class="form-control" /></td>
+                    <td><input @bind="editingFarm.Name" class="form-control" /></td>
+                    <td><input @bind="editingFarm.Location" class="form-control" /></td>
+                    <td><input @bind="editingFarm.Description" class="form-control" /></td>
+                    <td><input @bind="editingFarm.Animal" class="form-control" /></td>
+                    <td><input @bind="editingFarm.DeathRate" type="number" class="form-control" /></td>
+                    <td><input @bind="editingFarm.SickRate" type="number" class="form-control" /></td>
+                    <td><input @bind="editingFarm.State" class="form-control" /></td>
+                    <td>@farm.Created</td>
+                    <td>
+                        <button class="btn btn-sm btn-success" @onclick="() => SaveEdit(farm.Id)">Save</button>
+                        <button class="btn btn-sm btn-secondary" @onclick="CancelEdit">Cancel</button>
+                    </td>
+                </tr>
+            }
+            else if (deleteMenu)
+            {
+                <tr>
+                    <td>@farm.FarmID</td>
+                    <td>@farm.Name</td>
+                    <td>@farm.Location</td>
+                    <td>@farm.Description</td>
+                    <td>@farm.Animal</td>
+                    <td>@farm.DeathRate</td>
+                    <td>@farm.SickRate</td>
+                    <td>@farm.State</td>
+                    <td>@farm.Created</td>
+                    <td>
+                        <button class="btn btn-sm btn-danger" @onclick="() => DeleteFarm(farm)">Confirm Delete</button>
+                        <button class="btn btn-sm btn-secondary" @onclick="DeleteCancel">Cancel</button>
+                    </td>
+                </tr>
+            }
+            else
+            {
+                <tr>
+                    <td>@farm.FarmID</td>
+                    <td>@farm.Name</td>
+                    <td>@farm.Location</td>
+                    <td>@farm.Description</td>
+                    <td>@farm.Animal</td>
+                    <td>@farm.DeathRate</td>
+                    <td>@farm.SickRate</td>
+                    <td>@farm.State</td>
+                    <td>@farm.Created</td>
+                    <td>
+                        <button class="btn btn-sm btn-primary btn-outline-info" @onclick="() => StartEdit(farm)">Edit</button>
+                        <button class="btn btn-sm btn-primary btn-warning" @onclick="StartDelete">Delete</button>
+                    </td>
+                </tr>
+            }
+        }
+
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<Farm>? farms;
+    private Farm? editingFarm;
+    String curSortCol = "";
+    Boolean sortAscend = true;
+    private bool deleteMenu = false;
+
+    string id = "ID";
+    string name = "Name";
+    string FarmID = "FarmID";
+    string Location = "Location";
+    string Description = "Description";
+    string Animal = "Animal";
+    string DeathRate = "DeathRate";
+    string SickRate = "SickRate";
+    string State = "State";
+    string Created = "Created";
+
+    string searchBox = "";
+    bool exact = false;
+
+    private void ToggleExact()
+    {
+        exact = !exact;
+        Console.WriteLine(exact);
+    }
+
+    private async Task search(string searchString)
+    {
+        if (String.IsNullOrWhiteSpace(searchString))
+        {
+            farms = await FarmServices.GetFarmsListAsync();
+        }
+        else
+        {
+            farms = await FarmServices.GetFarmsListAsync();
+
+            farms = farms.Where(f => string.IsNullOrWhiteSpace(searchString) || MatchesSearch(f)).ToList();
+        }
+    }
+
+    private bool MatchesSearch(Farm f)
+    {
+        if (searchBox == null || !searchBox.Contains(":", StringComparison.OrdinalIgnoreCase) && !exact)
+        {
+            return
+                f.FarmID.ToString().Contains(searchBox, StringComparison.OrdinalIgnoreCase) ||
+                f.Name.Contains(searchBox, StringComparison.OrdinalIgnoreCase) ||
+                f.Location.Contains(searchBox, StringComparison.OrdinalIgnoreCase) ||
+                f.Description.Contains(searchBox, StringComparison.OrdinalIgnoreCase) ||
+                f.Animal.Contains(searchBox, StringComparison.OrdinalIgnoreCase) ||
+                f.DeathRate.ToString().Contains(searchBox, StringComparison.OrdinalIgnoreCase) ||
+                f.SickRate.ToString().Contains(searchBox, StringComparison.OrdinalIgnoreCase) ||
+                f.State.Contains(searchBox, StringComparison.OrdinalIgnoreCase) ||
+                f.Created.ToString().Contains(searchBox, StringComparison.OrdinalIgnoreCase);
+        }
+
+        if (!searchBox.Contains(":", StringComparison.OrdinalIgnoreCase) && exact)
+        {
+            return
+                f.FarmID.ToString().Equals(searchBox, StringComparison.OrdinalIgnoreCase) ||
+                f.Name.Equals(searchBox, StringComparison.OrdinalIgnoreCase) ||
+                f.Location.Equals(searchBox, StringComparison.OrdinalIgnoreCase) ||
+                f.Description.Equals(searchBox, StringComparison.OrdinalIgnoreCase) ||
+                f.Animal.Equals(searchBox, StringComparison.OrdinalIgnoreCase) ||
+                f.DeathRate.ToString().Equals(searchBox, StringComparison.OrdinalIgnoreCase) ||
+                f.SickRate.ToString().Equals(searchBox, StringComparison.OrdinalIgnoreCase) ||
+                f.State.Equals(searchBox, StringComparison.OrdinalIgnoreCase) ||
+                f.Created.ToString().Equals(searchBox, StringComparison.OrdinalIgnoreCase);
+        }
+
+        string[] parts = searchBox.Split(":", 2);
+        string field = parts[0].Trim();
+        string data = parts[1].Trim();
+
+        if (!exact)
+        {
+            switch (field.ToLower())
+            {
+                case "farmid":
+                    return f.FarmID.ToString().Contains(data, StringComparison.OrdinalIgnoreCase);
+                case "name":
+                    return f.Name.Contains(data, StringComparison.OrdinalIgnoreCase);
+                case "location":
+                    return f.Location.Contains(data, StringComparison.OrdinalIgnoreCase);
+                case "description":
+                    return f.Description.Contains(data, StringComparison.OrdinalIgnoreCase);
+                case "animal":
+                    return f.Animal.Contains(data, StringComparison.OrdinalIgnoreCase);
+                case "deathrate":
+                    return f.DeathRate.ToString().Contains(data, StringComparison.OrdinalIgnoreCase);
+                case "sickrate":
+                    return f.SickRate.ToString().Contains(data, StringComparison.OrdinalIgnoreCase);
+                case "state":
+                    return f.State.Contains(data, StringComparison.OrdinalIgnoreCase);
+                case "created":
+                    return f.Created.ToString().Contains(data, StringComparison.OrdinalIgnoreCase);
+                default:
+                    Console.WriteLine("COULD NOT FIND FIELD TO FILTER SEARCH");
+                    return false;
+            }
+        }
+        else
+        {
+            switch (field.ToLower())
+            {
+                case "farmid":
+                    return f.FarmID.ToString().Equals(data, StringComparison.OrdinalIgnoreCase);
+                case "name":
+                    return f.Name.Equals(data, StringComparison.OrdinalIgnoreCase);
+                case "location":
+                    return f.Location.Equals(data, StringComparison.OrdinalIgnoreCase);
+                case "description":
+                    return f.Description.Equals(data, StringComparison.OrdinalIgnoreCase);
+                case "animal":
+                    return f.Animal.Equals(data, StringComparison.OrdinalIgnoreCase);
+                case "deathrate":
+                    return f.DeathRate.ToString().Equals(data, StringComparison.OrdinalIgnoreCase);
+                case "sickrate":
+                    return f.SickRate.ToString().Equals(data, StringComparison.OrdinalIgnoreCase);
+                case "state":
+                    return f.State.Equals(data, StringComparison.OrdinalIgnoreCase);
+                case "created":
+                    return f.Created.ToString().Equals(data, StringComparison.OrdinalIgnoreCase);
+                default:
+                    Console.WriteLine("COULD NOT FIND FIELD TO FILTER SEARCH");
+                    return false;
+            }
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        farms = await FarmServices.GetFarmsListAsync();
+    }
+
+    private void SortFarms()
+    {
+        switch (curSortCol)
+        {
+            case "FarmID":
+                farms = sortAscend ? farms.OrderBy(f => f.FarmID).ToList() : 
+                    farms.OrderByDescending(f => f.FarmID).ToList();
+                break;
+            case "Name":
+                farms = sortAscend ? farms.OrderBy(f => f.Name).ToList() : 
+                    farms.OrderByDescending(f => f.Name).ToList();
+                break;
+            case "Location":
+                farms = sortAscend ? farms.OrderBy(f => f.Location).ToList() : 
+                    farms.OrderByDescending(f => f.Location).ToList();
+                break;
+            case "Description":
+                farms = sortAscend ? farms.OrderBy(f => f.Description).ToList() : 
+                    farms.OrderByDescending(f => f.Description).ToList();
+                break;
+            case "Animal":
+                farms = sortAscend ? farms.OrderBy(f => f.Animal).ToList() : 
+                    farms.OrderByDescending(f => f.Animal).ToList();
+                break;
+            case "DeathRate":
+                farms = sortAscend ? farms.OrderBy(f => f.DeathRate).ToList() : 
+                    farms.OrderByDescending(f => f.DeathRate).ToList();
+                break;
+            case "SickRate":
+                farms = sortAscend ? farms.OrderBy(f => f.SickRate).ToList() : 
+                    farms.OrderByDescending(f => f.SickRate).ToList();
+                break;
+            case "State":
+                farms = sortAscend ? farms.OrderBy(f => f.State).ToList() : 
+                    farms.OrderByDescending(f => f.State).ToList();
+                break;
+            case "Created":
+                farms = sortAscend ? farms.OrderBy(f => f.Created).ToList() : 
+                    farms.OrderByDescending(f => f.Created).ToList();
+                break;
+            default:
+                Console.WriteLine("DEFAULT CASE REACHED IN SortFarms() ERROR...\n");
+                break;
+        }
+    }
+
+    private void SortBy(string filter)
+    {
+        if (curSortCol == filter)
+        {
+            sortAscend = !sortAscend;
+        }
+        else
+        {
+            curSortCol = filter;
+            sortAscend = true;
+        }
+        SortFarms();
+    }
+
+    private void DeleteCancel()
+    {
+        deleteMenu = false;
+        StateHasChanged();
+    }
+
+    private void StartDelete()
+    {
+        deleteMenu = true;
+        StateHasChanged();
+    }
+
+    private void StartEdit(Farm farm)
+    {
+        Console.WriteLine($"Editing farm {farm.Id}");
+        editingFarm = new Farm
+        {
+            Id = farm.Id,
+            FarmID = farm.FarmID,
+            Name = farm.Name,
+            Location = farm.Location,
+            Description = farm.Description,
+            Animal = farm.Animal,
+            DeathRate = farm.DeathRate,
+            SickRate = farm.SickRate,
+            State = farm.State,
+            Created = farm.Created
+        };
+
+        StateHasChanged();
+    }
+
+
+    private void CancelEdit()
+    {
+        editingFarm = null;
+    }
+
+    private async Task DeleteFarm(Farm farm)
+    {
+        Farm delFarm = await FarmServices.GetFarmByIdAsync(farm.Id);
+        if (farm != null && delFarm != null)
+        {
+            await FarmServices.DeleteFarmAsync(farm);
+            deleteMenu = false;
+        }
+        else
+        {
+            deleteMenu = false;
+        }
+        // Need to reload the array list for it to update properly on the page!
+        farms = await FarmServices.GetFarmsListAsync();
+        StateHasChanged();
+    }
+
+    private async Task SaveEdit(int id)
+    {
+        if (editingFarm != null)
+        {
+            await FarmServices.UpdateFarmAsync(editingFarm);
+
+            var index = Array.FindIndex(farms.ToArray(), f => f.Id == id);
+            if (index >= 0)
+            {
+                farms[index] = editingFarm;
+            }
+
+            editingFarm = null;
+            farms = await FarmServices.GetFarmsListAsync();
+            StateHasChanged(); // optional
+        }
+    }
+
+
+}
