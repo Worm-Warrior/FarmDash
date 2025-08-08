@@ -15,42 +15,56 @@
 <EditForm Model="@farmEntry" OnValidSubmit="@Submit">
     <DataAnnotationsValidator />
     <ValidationSummary />
-    
+
     <div class="card p-4 shadow-sm">
-        <legend>Farm Data</legend>
-        <p>
-            <label for="FarmID">Farm ID:</label>
-            <InputNumber id="FarmID" @bind-Value="farmEntry.FarmID"/>
-        </p>
-        <p>
-            <label for="Name">Name:</label>
-            <InputText id="Name" @bind-Value="farmEntry.Name"/>
-        </p>
-        <p>
-            <label for="Location">Location:</label>
-            <InputText id="Location" @bind-Value="farmEntry.Location"/>
-        </p>
-        <p>
-            <label for="Description">Description:</label>
-            <InputText id="Description" @bind-Value="farmEntry.Description"/>
-        </p>
-        <p>
-            <label for="Animal">Animal:</label>
-            <InputText id="Animal" @bind-Value="farmEntry.Animal"/>
-        </p>
-        <p>
-            <label for="DeathRate">Death Rate (per 1k):</label>
-            <InputNumber id="DeathRate" @bind-Value="farmEntry.DeathRate"/>
-        </p>
-        <p>
-            <label for="SickRate">Sick Rate (per 1k):</label>
-            <InputNumber id="SickRate" @bind-Value="farmEntry.SickRate"/>
-        </p>
-        <p>
-            <label for="State">State</label>
-            <InputText id="State" @bind-Value="farmEntry.State"/>
-        </p>
-        <button type="submit">Submit</button>
+        <h4 class="mb-3">Farm Data Entry</h4>
+        <div class="row g-3">
+
+            <div class="col-md-2">
+                <label for="FarmID" class="form-label">Farm ID</label>
+                <InputNumber id="FarmID" @bind-Value="farmEntry.FarmID" class="form-control" />
+            </div>
+
+            <div class="col-md-2">
+                <label for="Name" class="form-label">Name</label>
+                <InputText id="Name" @bind-Value="farmEntry.Name" class="form-control" />
+            </div>
+
+            <div class="col-md-2">
+                <label for="Location" class="form-label">Location</label>
+                <InputText id="Location" @bind-Value="farmEntry.Location" class="form-control" />
+            </div>
+
+            <div class="col-6">
+                <label for="Description" class="form-label">Description</label>
+                <InputText id="Description" @bind-Value="farmEntry.Description" class="form-control" />
+            </div>
+
+            <div class="col-md-2">
+                <label for="Animal" class="form-label">Animal</label>
+                <InputText id="Animal" @bind-Value="farmEntry.Animal" class="form-control" />
+            </div>
+
+            <div class="col-md-2">
+                <label for="DeathRate" class="form-label">Death Rate (per 1k)</label>
+                <InputNumber id="DeathRate" @bind-Value="farmEntry.DeathRate" class="form-control" />
+            </div>
+
+            <div class="col-md-2">
+                <label for="SickRate" class="form-label">Sick Rate (per 1k)</label>
+                <InputNumber id="SickRate" @bind-Value="farmEntry.SickRate" class="form-control" />
+            </div>
+
+            <div class="col-md-1">
+                <label for="State" class="form-label">State</label>
+                <InputText id="State" @bind-Value="farmEntry.State" class="form-control" />
+            </div>
+
+            <div class="col-12 mt-3">
+                <button type="submit" class="btn btn-primary btn-success">Submit</button>
+            </div>
+
+        </div>
     </div>
 </EditForm>
 

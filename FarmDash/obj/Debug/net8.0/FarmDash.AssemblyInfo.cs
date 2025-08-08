@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("FarmDash")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+27e2172c31309099a869fbf99023e7dfc59e2bb4")]
 [assembly: System.Reflection.AssemblyProductAttribute("FarmDash")]
 [assembly: System.Reflection.AssemblyTitleAttribute("FarmDash")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

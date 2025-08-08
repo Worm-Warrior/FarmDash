@@ -136,3 +136,4 @@
 /home/harry/RiderProjects/FarmDash/FarmDash/obj/Debug/net8.0/FarmDash.pdb
 /home/harry/RiderProjects/FarmDash/FarmDash/obj/Debug/net8.0/FarmDash.genruntimeconfig.cache
 /home/harry/RiderProjects/FarmDash/FarmDash/obj/Debug/net8.0/ref/FarmDash.dll
+/home/harry/RiderProjects/FarmDash/FarmDash/obj/Debug/net8.0/FarmDash.sourcelink.json
