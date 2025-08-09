@@ -1,0 +1,30 @@
+@page "/login"
+
+<h3>Login</h3>
+
+<form method="post" action="/auth/login" enctype="application/x-www-form-urlencoded" @formname="login">
+    <AntiforgeryToken />
+    <div>
+        <label>Email:</label>
+        <input name="email" type="email" required />
+    </div>
+
+    <div>
+        <label>Password:</label>
+        <input name="password" type="password" required />
+    </div>
+
+    <button type="submit">Log In</button>
+</form>
+
+@if (loginFailed)
+{
+    <p style="color:red">Login failed. Check your credentials.</p>
+}
+
+<p><small>Test user: test@test.com / Test123!</small></p>
+
+@code {
+    [SupplyParameterFromQuery]
+    public bool loginFailed { get; set; }
+}

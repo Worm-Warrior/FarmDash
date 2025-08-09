@@ -1,11 +1,14 @@
 namespace FarmDash.Data;
 
-using Microsoft.EntityFrameworkCore;
 using FarmDash.Models;
 
-public class AppDBContext : DbContext
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
+
+public class AppDBContext : IdentityDbContext
 {
-    public AppDBContext(DbContextOptions<AppDBContext> options) : base(options) { }
-    
-    public DbSet<Farm> Farms => Set<Farm>();
+    public AppDBContext(DbContextOptions<AppDBContext> options)
+        : base(options) { }
+
+    public DbSet<Farm> Farms { get; set; }
 }

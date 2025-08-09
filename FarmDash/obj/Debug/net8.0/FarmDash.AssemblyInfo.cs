@@ -10,10 +10,11 @@
 using System;
 using System.Reflection;
 
+[assembly: Microsoft.AspNetCore.Identity.UI.UIFrameworkAttribute("Bootstrap5")]
 [assembly: System.Reflection.AssemblyCompanyAttribute("FarmDash")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+27e2172c31309099a869fbf99023e7dfc59e2bb4")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ef66ead1a3ef30db725e753381903f7d8d2b599b")]
 [assembly: System.Reflection.AssemblyProductAttribute("FarmDash")]
 [assembly: System.Reflection.AssemblyTitleAttribute("FarmDash")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

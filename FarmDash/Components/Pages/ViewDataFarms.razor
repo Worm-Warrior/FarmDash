@@ -1,10 +1,11 @@
-﻿@page "/ViewDataFarms"
+﻿@attribute [Authorize]
+@page "/ViewDataFarms"
 @using FarmDash.Controllers
 @using FarmDash.Models
 @using FarmDash.Services
+@using Microsoft.AspNetCore.Authorization
 @inject FarmServices FarmServices
 @rendermode InteractiveServer
-
 
 <PageTitle>Data View</PageTitle>
 

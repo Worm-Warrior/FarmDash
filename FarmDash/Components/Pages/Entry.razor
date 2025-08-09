@@ -1,12 +1,15 @@
 ﻿@page "/entry"
 @rendermode InteractiveServer
 
+@attribute [Authorize]
 @using FarmDash.Data
 @using FarmDash.Models
+@using Microsoft.AspNetCore.Authorization
 @using Microsoft.EntityFrameworkCore
 @using Microsoft.EntityFrameworkCore.Query
 @using static FarmDash.Models.Farm
 @inject AppDBContext db
+
 
 <PageTitle>Enter Data</PageTitle>
 
@@ -67,7 +70,6 @@
         </div>
     </div>
 </EditForm>
-
 
 
 @code {
