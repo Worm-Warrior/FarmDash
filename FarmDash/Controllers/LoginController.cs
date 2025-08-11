@@ -30,5 +30,13 @@ namespace FarmDash.Controllers
             
             return Redirect("/login?loginFailed=true");
         }
+
+        [HttpPost]
+        [Route("/auth/logout")]
+        public async Task<IActionResult> Logout()
+        {
+            await _signInManager.SignOutAsync();
+            return Redirect("/");
+        }
     }
 }
