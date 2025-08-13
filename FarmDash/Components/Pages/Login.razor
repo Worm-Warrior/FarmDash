@@ -1,25 +1,25 @@
 @page "/login"
 
-<h3>Login</h3>
+<h3 class="border-bottom mb-2">Login</h3>
 
 <form method="post" action="/auth/login" enctype="application/x-www-form-urlencoded" @formname="login">
     <AntiforgeryToken />
-    <div>
-        <label>Email:</label>
-        <input name="email" type="email" required />
+    <div class="mb-2 col-md-2">
+        <label class="form-label fw-bold">Email</label>
+        <input name="email" type="email" required class="form-control"/>
     </div>
 
-    <div>
-        <label>Password:</label>
-        <input name="password" type="password" required />
+    <div class="mb-2 col-md-2">
+        <label class="form-label fw-bold">Password</label>
+        <input name="password" type="password" required class="form-control"/>
     </div>
 
-    <button type="submit">Log In</button>
+    <button type="submit" class="btn btn-primary btn-outline-success">Log In</button>
 </form>
 
 @if (loginFailed)
 {
-    <p style="color:red">Login failed. Check your credentials.</p>
+    <p style="color:red" class="mt-2">Login failed. Check your credentials.</p>
 }
 
 @code {
