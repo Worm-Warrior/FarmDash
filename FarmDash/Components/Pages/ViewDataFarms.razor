@@ -17,7 +17,7 @@
     <p class="m-1">General search will select every entry that CONTAINS the search term. Exact will only select entries that are EQUAL to the search term.</p>
     <p class="m-1">You can combine General and Exact search with the "attribute:value" feature to get even more specific with your search.</p>
 </div>
-    @if (farms == null)
+    @if (allFarms == null)
 {
     
     <p>
@@ -26,21 +26,44 @@
 }
 else
 {
-    
-    <div class="ms-sm-auto mb-3">
-        <p>Search database</p>
-        <input class="form-control-sm" @bind="searchBox"/>
-        <button style="" class="btn btn-primary btn-success ms-2" @onclick="()=>search(searchBox)">Search</button>
-        @if (!exact) 
-        {
-            <button class="btn btn-primary btn-success btn-outline-dark ms-2" @onclick="()=>ToggleExact()">General Search</button>
-        }
-        else
-        {
-            <button class="btn btn-primary btn-success btn-outline-dark ms-2" @onclick="()=>ToggleExact()">Exact Search</button>
-        }
+    <div class="row mb-3">
+        <div class="col-md-8">
+            <p>Search database</p>
+            <div class="d-flex">
+                <input class="form-control-sm" @bind="searchBox" @onkeydown="HandleKeyPress"/>
+                <button style="" class="btn btn-primary btn-success ms-2" @onclick="() => search(searchBox)">Search</button>
+                @if (!exact)
+                {
+                    <button class="btn btn-primary btn-success btn-outline-dark ms-2" @onclick="() => ToggleExact()">General Search</button>
+                }
+                else
+                {
+                    <button class="btn btn-primary btn-success btn-outline-dark ms-2" @onclick="() => ToggleExact()">Exact Search</button>
+                }
+            </div>
+        </div>
+        <div class="col-md-4 text-end">
+            <p>Show per page:</p>
+            <select class="form-select" @onchange="PageSizeChanged" style="width: auto; display: inline-block">
+                <option value="10" selected="@(pageSize == 10)">10</option>
+                <option value="25" selected="@(pageSize == 25)">25</option>
+                <option value="50" selected="@(pageSize == 50)">50</option>
+                <option value="100" selected="@(pageSize == 100)">100</option>
+            </select>
+        </div>
     </div>
     
+    <div class="row mb-3">
+        <div class="col">
+            <p class="text-muted">
+                Showing @(GetFirstRecord())-@(GetLastRecord()) of @filteredFarms.Count farms
+                @if (totalPages > 1)
+                {
+                    <span>(Page @currentPage of @totalPages)</span>
+                }
+            </p>
+        </div>
+    </div>
     
     <table class="table ms-sm-auto">
         <thead>
@@ -68,7 +91,7 @@ else
         </thead>
         <tbody>
         
-        @foreach (var farm in farms)
+        @foreach (var farm in GetCurrentPageFarms())
         {
             if (editingFarm?.Id == farm.Id)
             {
@@ -83,8 +106,8 @@ else
                     <td><input @bind="editingFarm.State" class="form-control" /></td>
                     <td>@farm.Created</td>
                     <td>
-                        <button class="btn btn-sm btn-success" @onclick="() => SaveEdit(farm.Id)">Save</button>
-                        <button class="btn btn-sm btn-secondary" @onclick="CancelEdit">Cancel</button>
+                        <button class="btn btn-sm btn-success m-1" @onclick="() => SaveEdit(farm.Id)">Save</button>
+                        <button class="btn btn-sm btn-secondary m-1" @onclick="CancelEdit">Cancel</button>
                     </td>
                 </tr>
             }
@@ -101,8 +124,8 @@ else
                     <td>@farm.State</td>
                     <td>@farm.Created</td>
                     <td>
-                        <button class="btn btn-sm btn-danger" @onclick="() => DeleteFarm(farm)">Confirm Delete</button>
-                        <button class="btn btn-sm btn-secondary" @onclick="DeleteCancel">Cancel</button>
+                        <button class="btn btn-sm btn-danger m-1" @onclick="() => DeleteFarm(farm)">Confirm Delete</button>
+                        <button class="btn btn-sm btn-secondary m-1" @onclick="DeleteCancel">Cancel</button>
                     </td>
                 </tr>
             }
@@ -119,8 +142,8 @@ else
                     <td>@farm.State</td>
                     <td>@farm.Created</td>
                     <td>
-                        <button class="btn btn-sm btn-primary btn-outline-info" @onclick="() => StartEdit(farm)">Edit</button>
-                        <button class="btn btn-sm btn-primary btn-warning" @onclick="StartDelete">Delete</button>
+                        <button class="btn btn-sm btn-primary btn-outline-info m-1" @onclick="() => StartEdit(farm)">Edit</button>
+                        <button class="btn btn-sm btn-primary btn-warning m-1" @onclick="StartDelete">Delete</button>
                     </td>
                 </tr>
             }
@@ -128,28 +151,150 @@ else
 
         </tbody>
     </table>
+    
+    @if (totalPages > 1)
+    {
+        <nav aria-label="Farm pageation">
+            <ul class="pagination justify-content-center">
+                <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                    <button class="page-link" @onclick="() => GotoPage(1)" disabled="@(currentPage == 1)">First</button>
+                </li>
+                
+                <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                    <button class="page-link" @onclick="() => GotoPage(currentPage-1)" disabled="@(currentPage == 1)">Prev</button>
+                </li>
+                @{
+                    var startPage = Math.Max(1, currentPage - 2);
+                    var endPage = Math.Min(totalPages, currentPage + 2);
+                }
+                
+                @for (int i = startPage; i <= endPage; i++)
+                {
+                    var pageNumber = i;
+                    <li class="page-item @(i == currentPage ? "active" : "")">
+                        <button class="page-link" @onclick="() => GotoPage(pageNumber)">@i</button>
+                    </li>   
+                }
+
+                <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                    <button class="page-link" @onclick="() => GotoPage(currentPage+1)" disabled="@(currentPage == totalPages)">Next</button>
+                </li>
+                <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                    <button class="page-link" @onclick="() => GotoPage(totalPages)" disabled="@(currentPage == totalPages)">Last</button>
+                </li>
+            </ul>
+        </nav>
+    }
 }
 
 @code {
-    private List<Farm>? farms;
+    // General variables
+    private List<Farm>? allFarms;
+    static List<Farm> filteredFarms = new();
+    
+    // Page variables
+    private int currentPage = 1;
+    private static int pageSize = 10;
+    private int totalPages = (int)Math.Ceiling((double)filteredFarms.Count / pageSize);
+    private int jumpToPage = 1;
+    
+    // Edit and delete variables
     private Farm? editingFarm;
-    String curSortCol = "";
-    Boolean sortAscend = true;
     private bool deleteMenu = false;
+ 
+    // Sort variables
+    private String curSortCol = "";
+    private Boolean sortAscend = true;
 
-    string id = "ID";
-    string name = "Name";
-    string FarmID = "FarmID";
-    string Location = "Location";
-    string Description = "Description";
-    string Animal = "Animal";
-    string DeathRate = "DeathRate";
-    string SickRate = "SickRate";
-    string State = "State";
-    string Created = "Created";
+    // Search variables
+    private string id = "ID";
+    private const string name = "Name";
+    private const string FarmID = "FarmID";
+    private const string Location = "Location";
+    private const string Description = "Description";
+    private const string Animal = "Animal";
+    private const string DeathRate = "DeathRate";
+    private const string SickRate = "SickRate";
+    private const string State = "State";
+    private const string Created = "Created";
 
-    string searchBox = "";
-    bool exact = false;
+    private string searchBox = "";
+    private bool exact = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        allFarms = await FarmServices.GetFarmsListAsync();
+    }
+    
+    // Page methods
+    private List<Farm> GetCurrentPageFarms()
+    {
+        var start = (currentPage - 1) * pageSize;
+        return filteredFarms.Skip(start).Take(pageSize).ToList();
+    }
+
+    private int GetFirstRecord()
+    {
+        if (filteredFarms.Count == 0)
+        {
+            return 0;
+        }
+        return (currentPage - 1) * pageSize + 1;
+    }
+    
+    private int GetLastRecord()
+    {
+        var endRecord = currentPage * pageSize;
+        return Math.Min(endRecord, filteredFarms.Count);
+    }
+
+    private void GotoPage(int page)
+    {
+        if (page >= 1 && page <= totalPages)
+        {
+            currentPage = page;
+            StateHasChanged();
+        }
+    }
+
+    private void JumpToPage()
+    {
+        if (jumpToPage >= 1 && jumpToPage <= totalPages)
+        {
+            currentPage = jumpToPage;
+            StateHasChanged();
+        }
+    }
+
+    //TODO: FIX NAV BAR NOT RELOADING ON PAGE SIZE CHANGE
+    private void PageSizeChanged(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out var newPageSize))
+        {
+            pageSize = newPageSize;
+            currentPage = 1; // Reset to first page
+            
+            // Ensure current page doesn't exceed new total pages
+            var newTotalPages = (int)Math.Ceiling((double)filteredFarms.Count / pageSize);
+            if (currentPage > newTotalPages && newTotalPages > 0)
+            {
+                currentPage = newTotalPages;
+            }
+            StateHasChanged();
+            Console.WriteLine(pageSize + " " + newPageSize);
+        }
+    }
+    
+
+    // Search methods
+
+    private async Task HandleKeyPress(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            await search(searchBox);
+        }
+    }
 
     private void ToggleExact()
     {
@@ -162,14 +307,16 @@ else
     {
         if (String.IsNullOrWhiteSpace(searchString))
         {
-            farms = await FarmServices.GetFarmsListAsync();
+            filteredFarms = new List<Farm>(allFarms ?? new List<Farm>());
         }
         else
         {
-            farms = await FarmServices.GetFarmsListAsync();
-
-            farms = farms.Where(f => string.IsNullOrWhiteSpace(searchString) || MatchesSearch(f)).ToList();
+            filteredFarms = (allFarms ?? new List<Farm>()).Where(f => MatchesSearch(f)).ToList();
         }
+        SortFarms();
+
+        currentPage = 1;
+        StateHasChanged();
     }
 
     private bool MatchesSearch(Farm f)
@@ -262,50 +409,48 @@ else
         }
     }
 
-    protected override async Task OnInitializedAsync()
-    {
-        farms = await FarmServices.GetFarmsListAsync();
-    }
-
+    // sort methods
+    
+    //TODO: FIX DEFAULT CASE WHEN HITTING ENTER
     private void SortFarms()
     {
         switch (curSortCol)
         {
             case "FarmID":
-                farms = sortAscend ? farms.OrderBy(f => f.FarmID).ToList() : 
-                    farms.OrderByDescending(f => f.FarmID).ToList();
+                allFarms = sortAscend ? allFarms.OrderBy(f => f.FarmID).ToList() : 
+                    allFarms.OrderByDescending(f => f.FarmID).ToList();
                 break;
             case "Name":
-                farms = sortAscend ? farms.OrderBy(f => f.Name).ToList() : 
-                    farms.OrderByDescending(f => f.Name).ToList();
+                allFarms = sortAscend ? allFarms.OrderBy(f => f.Name).ToList() : 
+                    allFarms.OrderByDescending(f => f.Name).ToList();
                 break;
             case "Location":
-                farms = sortAscend ? farms.OrderBy(f => f.Location).ToList() : 
-                    farms.OrderByDescending(f => f.Location).ToList();
+                allFarms = sortAscend ? allFarms.OrderBy(f => f.Location).ToList() : 
+                    allFarms.OrderByDescending(f => f.Location).ToList();
                 break;
             case "Description":
-                farms = sortAscend ? farms.OrderBy(f => f.Description).ToList() : 
-                    farms.OrderByDescending(f => f.Description).ToList();
+                allFarms = sortAscend ? allFarms.OrderBy(f => f.Description).ToList() : 
+                    allFarms.OrderByDescending(f => f.Description).ToList();
                 break;
             case "Animal":
-                farms = sortAscend ? farms.OrderBy(f => f.Animal).ToList() : 
-                    farms.OrderByDescending(f => f.Animal).ToList();
+                allFarms = sortAscend ? allFarms.OrderBy(f => f.Animal).ToList() : 
+                    allFarms.OrderByDescending(f => f.Animal).ToList();
                 break;
             case "DeathRate":
-                farms = sortAscend ? farms.OrderBy(f => f.DeathRate).ToList() : 
-                    farms.OrderByDescending(f => f.DeathRate).ToList();
+                allFarms = sortAscend ? allFarms.OrderBy(f => f.DeathRate).ToList() : 
+                    allFarms.OrderByDescending(f => f.DeathRate).ToList();
                 break;
             case "SickRate":
-                farms = sortAscend ? farms.OrderBy(f => f.SickRate).ToList() : 
-                    farms.OrderByDescending(f => f.SickRate).ToList();
+                allFarms = sortAscend ? allFarms.OrderBy(f => f.SickRate).ToList() : 
+                    allFarms.OrderByDescending(f => f.SickRate).ToList();
                 break;
             case "State":
-                farms = sortAscend ? farms.OrderBy(f => f.State).ToList() : 
-                    farms.OrderByDescending(f => f.State).ToList();
+                allFarms = sortAscend ? allFarms.OrderBy(f => f.State).ToList() : 
+                    allFarms.OrderByDescending(f => f.State).ToList();
                 break;
             case "Created":
-                farms = sortAscend ? farms.OrderBy(f => f.Created).ToList() : 
-                    farms.OrderByDescending(f => f.Created).ToList();
+                allFarms = sortAscend ? allFarms.OrderBy(f => f.Created).ToList() : 
+                    allFarms.OrderByDescending(f => f.Created).ToList();
                 break;
             default:
                 Console.WriteLine("DEFAULT CASE REACHED IN SortFarms() ERROR...\n");
@@ -326,7 +471,8 @@ else
         }
         SortFarms();
     }
-
+    
+    // Delete and edit methods
     private void DeleteCancel()
     {
         deleteMenu = false;
@@ -379,7 +525,7 @@ else
             deleteMenu = false;
         }
         // Need to reload the array list for it to update properly on the page!
-        farms = await FarmServices.GetFarmsListAsync();
+        allFarms = await FarmServices.GetFarmsListAsync();
         StateHasChanged();
     }
 
@@ -389,14 +535,14 @@ else
         {
             await FarmServices.UpdateFarmAsync(editingFarm);
 
-            var index = Array.FindIndex(farms.ToArray(), f => f.Id == id);
+            var index = Array.FindIndex(allFarms.ToArray(), f => f.Id == id);
             if (index >= 0)
             {
-                farms[index] = editingFarm;
+                allFarms[index] = editingFarm;
             }
 
             editingFarm = null;
-            farms = await FarmServices.GetFarmsListAsync();
+            allFarms = await FarmServices.GetFarmsListAsync();
             StateHasChanged();
         }
     }
