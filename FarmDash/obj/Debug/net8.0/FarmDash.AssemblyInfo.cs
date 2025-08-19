@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("FarmDash")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f907774c6691972f2f450b409af0e97153be9fec")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d370a4349fc498f7438558808eab5eaede79d13a")]
 [assembly: System.Reflection.AssemblyProductAttribute("FarmDash")]
 [assembly: System.Reflection.AssemblyTitleAttribute("FarmDash")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

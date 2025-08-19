@@ -4,6 +4,7 @@
 @using FarmDash.Models
 @using FarmDash.Services
 @using Microsoft.AspNetCore.Authorization
+@using Microsoft.IdentityModel.Tokens
 @inject FarmServices FarmServices
 @rendermode InteractiveServer
 
@@ -152,7 +153,7 @@ else
         </tbody>
     </table>
     
-    @if (totalPages >= 1)
+    @if (totalPages > 1)
     {
         <nav aria-label="Farm pageation">
             <ul class="pagination justify-content-center">
@@ -195,7 +196,7 @@ else
     // Page variables
     private int currentPage = 1;
     private static int pageSize = 10;
-    private int totalPages = (int)Math.Ceiling((double)filteredFarms.Count / pageSize);
+    private int totalPages = 0;
     private int jumpToPage = 1;
     
     // Edit and delete variables
@@ -224,6 +225,14 @@ else
     protected override async Task OnInitializedAsync()
     {
         allFarms = await FarmServices.GetFarmsListAsync();
+        filteredFarms = new List<Farm>(allFarms ?? new List<Farm>()); 
+        UpdateTotalPages();
+        StateHasChanged();
+    }
+    
+    private void UpdateTotalPages()
+    {
+        totalPages = filteredFarms?.Count > 0 ? (int)Math.Ceiling((double)filteredFarms.Count / pageSize) : 0;
     }
     
     // Page methods
@@ -232,6 +241,10 @@ else
     private List<Farm> GetCurrentPageFarms()
     {
         var start = (currentPage - 1) * pageSize;
+        var result = filteredFarms.Skip(start).Take(pageSize).ToList();
+        string output = string.Join("\n", result);
+        Console.WriteLine(output);
+        Console.WriteLine("start at: "+start + " take " + pageSize);
         return filteredFarms.Skip(start).Take(pageSize).ToList();
     }
 

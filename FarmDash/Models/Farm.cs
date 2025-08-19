@@ -13,4 +13,9 @@ public class Farm
     public double SickRate { get; set; }
     public string State { get; set; } = "";
     public DateTime Created { get; set; } =  DateTime.UtcNow;
+
+    public override string ToString()
+    {
+        return $"Farm: {FarmID}, {Name}, {Location}, {State}, {Created}";
+    }
 }
