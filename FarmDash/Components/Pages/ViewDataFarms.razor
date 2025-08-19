@@ -152,7 +152,7 @@ else
         </tbody>
     </table>
     
-    @if (totalPages > 1)
+    @if (totalPages >= 1)
     {
         <nav aria-label="Farm pageation">
             <ul class="pagination justify-content-center">
@@ -227,6 +227,8 @@ else
     }
     
     // Page methods
+    //TODO:(FIX BUG) Either this function or the search function is broken when both first loading the page (it is blank)
+    // and when searching from hitting enter on keyboard breaks the search.
     private List<Farm> GetCurrentPageFarms()
     {
         var start = (currentPage - 1) * pageSize;
@@ -266,20 +268,16 @@ else
         }
     }
 
-    //TODO: FIX NAV BAR NOT RELOADING ON PAGE SIZE CHANGE
+    //NOTE: think I fixed the navbar pages not updating.
+    // Had to make it so that totalPages updates every time we change page count (duh).
     private void PageSizeChanged(ChangeEventArgs e)
     {
         if (int.TryParse(e.Value?.ToString(), out var newPageSize))
         {
             pageSize = newPageSize;
             currentPage = 1; // Reset to first page
-            
+            totalPages = (int)Math.Ceiling((double)filteredFarms.Count / pageSize);
             // Ensure current page doesn't exceed new total pages
-            var newTotalPages = (int)Math.Ceiling((double)filteredFarms.Count / pageSize);
-            if (currentPage > newTotalPages && newTotalPages > 0)
-            {
-                currentPage = newTotalPages;
-            }
             StateHasChanged();
             Console.WriteLine(pageSize + " " + newPageSize);
         }
@@ -288,6 +286,8 @@ else
 
     // Search methods
 
+    //TODO: I think this function is causing issues with the search feature, gives bad search results when
+    // using enter key instead of button.
     private async Task HandleKeyPress(KeyboardEventArgs e)
     {
         if (e.Key == "Enter")
@@ -305,6 +305,8 @@ else
 
     private async Task search(string searchString)
     {
+        
+        Console.WriteLine(searchString);
         if (String.IsNullOrWhiteSpace(searchString))
         {
             filteredFarms = new List<Farm>(allFarms ?? new List<Farm>());
@@ -313,7 +315,6 @@ else
         {
             filteredFarms = (allFarms ?? new List<Farm>()).Where(f => MatchesSearch(f)).ToList();
         }
-        SortFarms();
 
         currentPage = 1;
         StateHasChanged();
@@ -417,40 +418,40 @@ else
         switch (curSortCol)
         {
             case "FarmID":
-                allFarms = sortAscend ? allFarms.OrderBy(f => f.FarmID).ToList() : 
-                    allFarms.OrderByDescending(f => f.FarmID).ToList();
+                filteredFarms = sortAscend ? filteredFarms.OrderBy(f => f.FarmID).ToList() : 
+                    filteredFarms.OrderByDescending(f => f.FarmID).ToList();
                 break;
             case "Name":
-                allFarms = sortAscend ? allFarms.OrderBy(f => f.Name).ToList() : 
-                    allFarms.OrderByDescending(f => f.Name).ToList();
+                filteredFarms = sortAscend ? filteredFarms.OrderBy(f => f.Name).ToList() : 
+                    filteredFarms.OrderByDescending(f => f.Name).ToList();
                 break;
             case "Location":
-                allFarms = sortAscend ? allFarms.OrderBy(f => f.Location).ToList() : 
-                    allFarms.OrderByDescending(f => f.Location).ToList();
+                filteredFarms = sortAscend ? filteredFarms.OrderBy(f => f.Location).ToList() : 
+                    filteredFarms.OrderByDescending(f => f.Location).ToList();
                 break;
             case "Description":
-                allFarms = sortAscend ? allFarms.OrderBy(f => f.Description).ToList() : 
-                    allFarms.OrderByDescending(f => f.Description).ToList();
+                filteredFarms = sortAscend ? filteredFarms.OrderBy(f => f.Description).ToList() : 
+                    filteredFarms.OrderByDescending(f => f.Description).ToList();
                 break;
             case "Animal":
-                allFarms = sortAscend ? allFarms.OrderBy(f => f.Animal).ToList() : 
-                    allFarms.OrderByDescending(f => f.Animal).ToList();
+                filteredFarms = sortAscend ? filteredFarms.OrderBy(f => f.Animal).ToList() : 
+                    filteredFarms.OrderByDescending(f => f.Animal).ToList();
                 break;
             case "DeathRate":
-                allFarms = sortAscend ? allFarms.OrderBy(f => f.DeathRate).ToList() : 
-                    allFarms.OrderByDescending(f => f.DeathRate).ToList();
+                filteredFarms = sortAscend ? filteredFarms.OrderBy(f => f.DeathRate).ToList() : 
+                    filteredFarms.OrderByDescending(f => f.DeathRate).ToList();
                 break;
             case "SickRate":
-                allFarms = sortAscend ? allFarms.OrderBy(f => f.SickRate).ToList() : 
-                    allFarms.OrderByDescending(f => f.SickRate).ToList();
+                filteredFarms = sortAscend ? filteredFarms.OrderBy(f => f.SickRate).ToList() : 
+                    filteredFarms.OrderByDescending(f => f.SickRate).ToList();
                 break;
             case "State":
-                allFarms = sortAscend ? allFarms.OrderBy(f => f.State).ToList() : 
-                    allFarms.OrderByDescending(f => f.State).ToList();
+                filteredFarms = sortAscend ? filteredFarms.OrderBy(f => f.State).ToList() : 
+                    filteredFarms.OrderByDescending(f => f.State).ToList();
                 break;
             case "Created":
-                allFarms = sortAscend ? allFarms.OrderBy(f => f.Created).ToList() : 
-                    allFarms.OrderByDescending(f => f.Created).ToList();
+                filteredFarms = sortAscend ? filteredFarms.OrderBy(f => f.Created).ToList() : 
+                    filteredFarms.OrderByDescending(f => f.Created).ToList();
                 break;
             default:
                 Console.WriteLine("DEFAULT CASE REACHED IN SortFarms() ERROR...\n");
