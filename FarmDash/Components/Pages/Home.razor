@@ -1,33 +1,61 @@
 ﻿@page "/"
 @attribute [Authorize]
+@using FarmDash.Controllers
+@using FarmDash.Models
+@using FarmDash.Services
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Identity
 @inject Microsoft.AspNetCore.Identity.UserManager<IdentityUser> UserManager
 @inject Microsoft.AspNetCore.Identity.SignInManager<IdentityUser> SignInManager
+@inject FarmServices FarmServices
+@rendermode InteractiveServer
 
-<PageTitle>Dashboard Home</PageTitle>
+<PageTitle>Farm Dashboard</PageTitle>
 
-<h1>Dashboard Home</h1>
-
-<h2 style="margin-top: 20px; border-top: rebeccapurple outset 3px;" class="mt-3"></h2>
-
-<div class="row">
-    <div class="col-sm-5">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">Enter New Farm Data</h5>
-                <p class="card-text">Add farms into the database through this form.</p>
-                <a href="/Entry" class="btn btn-primary">Data Entry</a>
-            </div>
-        </div>
-    </div>
-    <div class="col-sm-5">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">View Farm Data</h5>
-                <p class="card-text">Display the current farms in the database, and search and sort them by their attributes.</p>
-                <a href="/ViewDataFarms" class="btn btn-primary">View Data</a>
-            </div>
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="display-4 text-opacity-75 text-primary mb-2"> Farm Dashboard</h1>
+            <p class="lead text-muted">Welcome, here is an overview of farms.</p>
         </div>
     </div>
 </div>
+
+@if (farms == null)
+{
+    <div class="row">
+        <div class="col-12 text-center">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-3">Loading dashboard data...</p>
+        </div>
+    </div>
+}
+else
+{
+}
+
+
+@code {
+    private List<Farm> farms = null;
+    private List<Farm> recentFarms = null;
+    private List<Farm> unwellFarms = null;
+    private Double avgDeathRate;
+    private Double avgSickRate;
+    private int numStates;
+    private Dictionary<string, int>? animalCount;
+    private Dictionary<string, int>? stateCount;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDashData();
+    }
+
+    private async Task LoadDashData()
+    {
+        farms = await FarmServices.GetFarmsListAsync();
+    }
+
+}
